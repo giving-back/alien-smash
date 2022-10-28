@@ -1,4 +1,5 @@
 from random import randrange
+from shutil import move
 import pygame
 
 alien = Actor("alien")
@@ -9,6 +10,7 @@ HEIGHT = 700
 
 score = 0
 highest_score = 0
+move_time = 1.0
 
 def random_move():
     alien.x = randrange(alien.width//2, WIDTH - (alien.width//2))
@@ -29,7 +31,7 @@ def draw():
     screen.draw.text(f"Score: {score}", (0, 0))
     screen.draw.text(f"Highest Score: {highest_score}", (0, 15))
 
-clock.schedule_interval(random_move, 1.0)
+clock.schedule_interval(random_move, move_time)
 
 def update():
     if keyboard.f:
