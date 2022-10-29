@@ -21,12 +21,24 @@ game_background = Actor("gamebackground")
 game_state = GameState.TOSTART
 score = 0
 move_time = 1.0
-game_time = 10.0
+game_time = 30.0
+game_timer = game_time
 
 def end_game():
     global game_state
+    global game_timer
+    global game_time
+
+    game_timer = game_time
     sounds.gameover.play()
+    clock.unschedule(tick_timer)
     game_state = GameState.OVER
+
+def tick_timer():
+    global game_timer
+    game_timer -= 1
+    if game_timer <= 0:
+        end_game()
 
 def draw_home():
     screen.blit("gamebackground", (0, 0))
@@ -36,7 +48,9 @@ def draw_home():
     screen.draw.text("Created By Christian & Blake", color=(0,0,0), center=(WIDTH/2, HEIGHT - HEIGHT/4))
 
 def draw_game():
+    global game_timer
     screen.blit("gamebackground", (0, 0))
+    screen.draw.text(f"{game_timer}", color=(0,0,0), center=(20, 20))
     pink_alien.draw()
     crosshair.draw()
 
@@ -101,7 +115,7 @@ def on_mouse_down(pos):
         score = 0
         sounds.go.play()
         game_state = GameState.INPROGRESS
-        clock.schedule_unique(end_game, game_time)
+        clock.schedule_interval(tick_timer, 1.0)
     
     if pink_alien.collidepoint(pos):
         score += 1
