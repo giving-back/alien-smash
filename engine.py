@@ -16,17 +16,43 @@ game_over = Actor("gameover", center=(WIDTH/2, HEIGHT/2))
 crosshair = Actor("crosshair")
 pink_alien = Actor("pinkalien")
 game_background = Actor("gamebackground")
+walker = Actor("walk1")
+walker.x = 0
+walker.y = 25
+
 
 #Globals
 game_state = GameState.TOSTART
 score = 0
 move_time = 1.0
-game_time = 10.0
+game_time = 30.0
+game_timer = game_time
+walker_step = WIDTH // game_time
 
 def end_game():
     global game_state
+    global game_timer
+    global game_time
+
+    game_timer = game_time
+    walker.x = 0
     sounds.gameover.play()
+    clock.unschedule(tick_timer)
     game_state = GameState.OVER
+
+def tick_timer():
+    global game_timer
+    global walker_step
+    game_timer -= 1
+    walker.x += walker_step
+    
+    if walker.image == "walk1":
+        walker.image = "walk2"
+    else:
+        walker.image = "walk1"
+
+    if game_timer <= 0:
+        end_game()
 
 def draw_home():
     screen.blit("gamebackground", (0, 0))
@@ -36,8 +62,10 @@ def draw_home():
     screen.draw.text("Created By Christian & Blake", color=(0,0,0), center=(WIDTH/2, HEIGHT - HEIGHT/4))
 
 def draw_game():
+    global game_timer
     screen.blit("gamebackground", (0, 0))
     pink_alien.draw()
+    walker.draw()
     crosshair.draw()
 
 def draw_game_over():
@@ -79,7 +107,7 @@ def update():
     if keyboard.f:
         pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
     if keyboard.escape:
-        game_state = GameState.TOSTART
+        end_game()
     if keyboard.q:
         quit()
 
@@ -101,7 +129,7 @@ def on_mouse_down(pos):
         score = 0
         sounds.go.play()
         game_state = GameState.INPROGRESS
-        clock.schedule_unique(end_game, game_time)
+        clock.schedule_interval(tick_timer, 1.0)
     
     if pink_alien.collidepoint(pos):
         score += 1
