@@ -2,4 +2,5 @@
 basic kids game to learn coding
 
 
-pgzrun engine.py
+poetry install
+pgzrun src/engine.py

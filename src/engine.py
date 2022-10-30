@@ -3,6 +3,8 @@ import pygame
 from enum import Enum
 from random import randrange
 
+from pgzero.builtins import Actor, clock, keyboard, sounds
+
 class GameState(Enum):
     TOSTART = 1
     INPROGRESS = 2
@@ -23,7 +25,6 @@ bonus_clock.x = -100
 walker.x = 0
 walker.y = 25
 
-
 #Globals
 game_state = GameState.TOSTART
 score = 0
@@ -32,8 +33,6 @@ game_time = 30.0
 game_timer = game_time
 walker_step = WIDTH // game_time
 bonus_clock_appears = game_time // randrange(1, 5)
-
-print(bonus_clock_appears)
 
 def end_game():
     global game_state
@@ -96,7 +95,6 @@ def alien_random_move():
 
 
 def clock_appear():
-    print("here")
     bonus_clock.x = 15
 
 clock.schedule_interval(alien_random_move, move_time)
@@ -155,4 +153,3 @@ def on_mouse_down(pos):
         bonus_clock.x = -100
         game_timer = min(game_time, game_timer + 3)
         walker.x = max(0, walker.x - 3 * walker_step)
-        
