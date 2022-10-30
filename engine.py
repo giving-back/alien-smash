@@ -8,7 +8,7 @@ class GameState(Enum):
     INPROGRESS = 2
     OVER = 3
 
-WIDTH = 800
+WIDTH = 1000
 HEIGHT = 800
 
 start_game = Actor("ready", center=(WIDTH/2, HEIGHT/2))
@@ -17,6 +17,9 @@ crosshair = Actor("crosshair")
 pink_alien = Actor("pinkalien")
 game_background = Actor("gamebackground")
 walker = Actor("walk1")
+bonus_clock = Actor("clock")
+
+bonus_clock.x = -100
 walker.x = 0
 walker.y = 25
 
@@ -28,6 +31,9 @@ move_time = 1.0
 game_time = 30.0
 game_timer = game_time
 walker_step = WIDTH // game_time
+bonus_clock_appears = game_time // randrange(1, 5)
+
+print(bonus_clock_appears)
 
 def end_game():
     global game_state
@@ -58,13 +64,14 @@ def draw_home():
     screen.blit("gamebackground", (0, 0))
     start_game.draw()
     crosshair.draw()
-    screen.draw.text("ALIEN  SMASH", color=(0,0,0), center=(WIDTH/2, (HEIGHT - HEIGHT/4)-20))
-    screen.draw.text("Created By Christian & Blake", color=(0,0,0), center=(WIDTH/2, HEIGHT - HEIGHT/4))
+    screen.draw.text("ALIEN  SMASH", fontname="retro", fontsize=30, color=(0,0,0), center=(WIDTH/2, (HEIGHT - HEIGHT/4)-25))
+    screen.draw.text("Created By Christian & Blake", fontsize=15, fontname="retro", color=(0,0,0), center=(WIDTH/2, HEIGHT - HEIGHT/4))
 
 def draw_game():
     global game_timer
     screen.blit("gamebackground", (0, 0))
     pink_alien.draw()
+    bonus_clock.draw()
     walker.draw()
     crosshair.draw()
 
@@ -83,11 +90,17 @@ def set_alien_hurt():
 def set_alien_normal():
     pink_alien.image = "pinkalien"
 
-def random_move():
+def alien_random_move():
     pink_alien.x = randrange(pink_alien.width//2, WIDTH - (pink_alien.width//2))
     pink_alien.y = randrange(pink_alien.height//2, HEIGHT - (pink_alien.height//2))
 
-clock.schedule_interval(random_move, move_time)
+
+def clock_appear():
+    print("here")
+    bonus_clock.x = 15
+
+clock.schedule_interval(alien_random_move, move_time)
+clock.schedule_interval(clock_appear, bonus_clock_appears)
 
 def draw():
     screen.clear()
@@ -123,7 +136,10 @@ def update():
 
 def on_mouse_down(pos):
     global game_state
+    global game_timer
+    global game_time
     global score
+    global walker_step
 
     if start_game.collidepoint(pos):
         score = 0
@@ -134,3 +150,9 @@ def on_mouse_down(pos):
     if pink_alien.collidepoint(pos):
         score += 1
         set_alien_hurt()
+
+    if bonus_clock.collidepoint(pos):
+        bonus_clock.x = -100
+        game_timer = min(game_time, game_timer + 3)
+        walker.x = max(0, walker.x - 3 * walker_step)
+        
